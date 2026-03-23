@@ -1,0 +1,71 @@
+\section{Неки примери}
+Овде дајемо неке примере из реалног живота и свакодневне програмерске праксе.
+\begin{primer}[Outbox pattern]
+Outbox pattern је техника којом се у истој трансакцији уписује промена у базу и порука у outbox табелу.
+Засебан процес затим чита outbox и шаље поруке ка брокеру, па се порука чисти тек након потврде.
+
+\textbf{TLA+ код (издвојени део спецификације):}
+\begin{lstlisting}
+VARIABLES db, outbox, broker, sent, acked, allMsgs, nextMsgId
+
+CreateOrder(o) ==
+    LET m == [id |-> nextMsgId, order |-> o] IN
+    /\ db[o] = "NEW"
+    /\ db' = [db EXCEPT ![o] = "CREATED"]
+    /\ outbox' = outbox \cup {m}
+    /\ allMsgs' = allMsgs \cup {m}
+    /\ nextMsgId' = nextMsgId + 1
+    /\ UNCHANGED <<broker, sent, acked>>
+
+RelaySend(m) ==
+    /\ m \in outbox
+    /\ broker' = broker \cup {m}
+    /\ sent' = sent \cup {m.id}
+    /\ UNCHANGED <<db, outbox, acked, allMsgs, nextMsgId>>
+
+AckFromBroker(m) ==
+    /\ m \in broker
+    /\ acked' = acked \cup {m.id}
+    /\ UNCHANGED <<db, outbox, broker, sent, allMsgs, nextMsgId>>
+
+CleanupOutbox(m) ==
+    /\ m \in outbox
+    /\ m.id \in acked
+    /\ outbox' = outbox \ {m}
+    /\ UNCHANGED <<db, broker, sent, acked, allMsgs, nextMsgId>>
+\end{lstlisting}
+\end{primer}
+
+\begin{primer}[Outbox pattern]
+
+\end{primer}
+
+\begin{primer}[Outbox pattern]
+
+\end{primer}
+
+\begin{primer}[Outbox pattern]
+
+\end{primer}
+
+
+% \begin{teorema}
+%     Овде стоји исказ теореме.
+% \end{teorema}
+
+% \begin{proof}
+%     Овде иде доказ теореме.
+% \end{proof}
+
+% \begin{lema}
+%     Овде стоји исказ леме.
+% \end{lema}
+
+% \begin{posledica}
+%     Овде стоји последица.
+% \end{posledica}
+
+% % -------------------------------------------------------
+% \section{Закључак}
+
+% Овде иде закључак.

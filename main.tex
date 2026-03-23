@@ -1,0 +1,99 @@
+\documentclass[12pt, a4paper]{article}
+
+% Пакети за српски ћирилични текст
+\usepackage[T2A]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[serbianc]{babel}
+
+% Остали корисни пакети
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{automata, positioning, arrows.meta}
+
+% TLA+ стил за listings
+\lstdefinelanguage{tla}{
+    morekeywords={MODULE, EXTENDS, VARIABLES, CONSTANTS, ASSUME,
+                  INSTANCE, LOCAL, RECURSIVE,
+                  IF, THEN, ELSE, CASE, OTHER,
+                  LET, IN,
+                  TRUE, FALSE, BOOLEAN, STRING,
+                  SUBSET, UNION, DOMAIN, ENABLED, UNCHANGED,
+                  Init, Next, Spec},
+    sensitive=true,
+    morecomment=[l]{\*},
+    morecomment=[s]{(*}{*)},
+    morestring=[b]",
+}
+
+\lstset{
+    language=tla,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\bfseries\color{blue!70!black},
+    commentstyle=\itshape\color{gray},
+    stringstyle=\color{green!50!black},
+    frame=single,
+    backgroundcolor=\color{gray!8},
+    rulecolor=\color{gray!40},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    numbersep=6pt,
+    breaklines=true,
+    keepspaces=true,
+    showstringspaces=false,
+}
+
+% Подешавање маргина
+\geometry{
+    left=2.5cm,
+    right=2.5cm,
+    top=2.5cm,
+    bottom=2.5cm
+}
+
+% Дефиниција теорема, лема, итд.
+\theoremstyle{plain}
+\newtheorem{teorema}{Теорема}[section]
+\newtheorem{lema}[teorema]{Лема}
+\newtheorem{posledica}[teorema]{Последица}
+
+\theoremstyle{definition}
+\newtheorem{definicija}[teorema]{Дефиниција}
+\newtheorem{primer}[teorema]{Пример}
+
+\theoremstyle{remark}
+\newtheorem*{napomena}{Напомена}
+
+% Наслов документа
+\title{\textbf{Формалне методе} \\ (Увод у TLA+)}
+\author{Филип Марић \\ Александар Ивановић}
+\date{\today}
+
+% -------------------------------------------------------
+\begin{document}
+
+\maketitle
+\newpage
+\tableofcontents
+\newpage
+
+\input{sections/predgovor}
+\input{sections/uvod}
+\input{sections/osnovni_pojmovi}
+\input{sections/primeri}
+\newpage
+\input{sections/operatori}
+
+\newpage
+\nocite{lamportLearningTLA,learnTLAIndex}
+\bibliographystyle{plain}
+\bibliography{literatura}
+
+\end{document}
