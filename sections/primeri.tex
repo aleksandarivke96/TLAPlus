@@ -1,71 +1,211 @@
-\section{Неки примери}
-Овде дајемо неке примере из реалног живота и свакодневне програмерске праксе.
-\begin{primer}[Outbox pattern]
-Outbox pattern је техника којом се у истој трансакцији уписује промена у базу и порука у outbox табелу.
-Засебан процес затим чита outbox и шаље поруке ка брокеру, па се порука чисти тек након потврде.
+\section{Неки основни примери}
+Овде дајемо неке примере из рачунарства који су довољно мали али илустративни да се покакжу неки концепти ТЛА
+спецификације.
 
-\textbf{TLA+ код (издвојени део спецификације):}
+\subsection{Прекидач за светло}
+\begin{primer}[Прекидач за светло]
+Прекидач за светло је класичан пример коначног аутомата са два стања: \texttt{off} и \texttt{on}.
+Једина акција је притискање прекидача (\texttt{Toggle}) која мења стање из \texttt{off} у \texttt{on} и обрнуто.
+
+\textbf{TLA+ модул (\texttt{LightSwitch.tla}):}
 \begin{lstlisting}
-VARIABLES db, outbox, broker, sent, acked, allMsgs, nextMsgId
+---- MODULE LightSwitch ----
+VARIABLE light
 
-CreateOrder(o) ==
-    LET m == [id |-> nextMsgId, order |-> o] IN
-    /\ db[o] = "NEW"
-    /\ db' = [db EXCEPT ![o] = "CREATED"]
-    /\ outbox' = outbox \cup {m}
-    /\ allMsgs' = allMsgs \cup {m}
-    /\ nextMsgId' = nextMsgId + 1
-    /\ UNCHANGED <<broker, sent, acked>>
+Init == light = "off"
 
-RelaySend(m) ==
-    /\ m \in outbox
-    /\ broker' = broker \cup {m}
-    /\ sent' = sent \cup {m.id}
-    /\ UNCHANGED <<db, outbox, acked, allMsgs, nextMsgId>>
+Toggle ==
+    \/ /\ light = "off"
+       /\ light' = "on"
+    \/ /\ light = "on"
+       /\ light' = "off"
 
-AckFromBroker(m) ==
-    /\ m \in broker
-    /\ acked' = acked \cup {m.id}
-    /\ UNCHANGED <<db, outbox, broker, sent, allMsgs, nextMsgId>>
+Next == Toggle
 
-CleanupOutbox(m) ==
-    /\ m \in outbox
-    /\ m.id \in acked
-    /\ outbox' = outbox \ {m}
-    /\ UNCHANGED <<db, broker, sent, acked, allMsgs, nextMsgId>>
+Spec == Init /\ [][Next]_light
+
+TypeInvariant == light \in {"off", "on"}
+====
 \end{lstlisting}
+
+
+\textbf{TLC конфигурациони фајл (\texttt{LightSwitch.cfg}):}
+\begin{lstlisting}
+INIT Init
+NEXT Next
+INVARIANT TypeInvariant
+\end{lstlisting}
+
+Конфигурациони фајл говори TLC model checkeru:
+\begin{itemize}
+    \item \texttt{INIT} --- која формула описује почетна стања,
+    \item \texttt{NEXT} --- која формула описује прелазе стања,
+    \item \texttt{INVARIANT} --- које особине треба да важе у \emph{свим} достижним стањима.
+\end{itemize}
+Овде први пут видимо нови концепт \textbf{INVARIANT} у конфигурационом фајлу. Он нам говори да неки услов
+треба да важи у свим стањима наше спецификације и према томе је инваријантан. 
+Особина исправности светло је увек у неком од два дозвољена стања, тј. \texttt{TypeInvariant} дефиниција важи у сваком достижном стању.
+    
+Такође обратимо пажњу на дефиницију 
+\begin{lstlisting}
+    TypeInvariant == light \in {"off", "on"}
+\end{lstlisting}
+овде можемо видети такође везу са математиком. Наиме ово је чиста формула теорије скупова која каже променљива \texttt{light}
+припада неком скупу могућих вредности. Могли смо записати $x \in \{p, q\}$, идеја програма би имала исти смисао.
 \end{primer}
 
-\begin{primer}[Outbox pattern]
+\begin{primer}[Прекидач за светло --- булова варијанта]
+Исти прекидач можемо моделовати и са буловом променљивом уместо стрингова.
+Вредност \texttt{TRUE} представља укључено светло, \texttt{FALSE} искључено.
+Акција \texttt{Toggle} тада постаје знатно краћа јер нема потребе за две гране.
 
+\textbf{TLA+ модул (\texttt{LightSwitchBool.tla}):}
+\begin{lstlisting}
+---- MODULE LightSwitchBool ----
+VARIABLE light
+
+Init == light = FALSE
+
+Toggle == light' = ~light
+
+Next == Toggle
+
+Spec == Init /\ [][Next]_light
+
+TypeInvariant == light \in BOOLEAN
+====
+\end{lstlisting}
+
+Уочимо неколико ствари. \texttt{Toggle} је сада само \texttt{light' = \textasciitilde light} негација тренутне вредности.
+\texttt{TypeInvariant} користи уграђени скуп \texttt{BOOLEAN} $= \{\texttt{TRUE}, \texttt{FALSE}\}$ уместо ручно набројаног скупа стрингова.
+Обе варијанте су семантички еквивалентне; булова је компактнија, а стринг варијанта је читљивија када стања имају смислена имена.
 \end{primer}
 
-\begin{primer}[Outbox pattern]
+\subsection{Брава на вратима}
+\begin{primer}[Брава на вратима]
+Брава на вратима је пример са три стања: \texttt{locked}, \texttt{unlocked} и \texttt{open}.
+За разлику од прекидача, овде \emph{нису све акције увек дозвољене} нпр.\ врата се не могу отворити ако су закључана.
 
+Акције су:
+\begin{itemize}
+    \item \texttt{Unlock} --- откључавање (само из стања \texttt{locked}),
+    \item \texttt{Lock} --- закључавање (само из стања \texttt{unlocked}),
+    \item \texttt{Open} --- отварање (само из стања \texttt{unlocked}),
+    \item \texttt{Close} --- затварање (само из стања \texttt{open}).
+\end{itemize}
+
+\textbf{TLA+ модул (\texttt{DoorLock.tla}):}
+\begin{lstlisting}
+---- MODULE DoorLock ----
+VARIABLE door
+
+Init == door = "locked"
+
+Unlock == /\ door = "locked"
+          /\ door' = "unlocked"
+
+Lock   == /\ door = "unlocked"
+          /\ door' = "locked"
+
+Open   == /\ door = "unlocked"
+          /\ door' = "open"
+
+Close  == /\ door = "open"
+          /\ door' = "unlocked"
+
+Next == Unlock \/ Lock \/ Open \/ Close
+
+Spec == Init /\ [][Next]_door
+
+TypeInvariant == door \in {"locked", "unlocked", "open"}
+
+CannotOpenWhenLocked == door = "locked" => door # "open"
+====
+\end{lstlisting}
+
+\textbf{TLC конфигурациони фајл (\texttt{DoorLock.cfg}):}
+\begin{lstlisting}
+INIT Init
+NEXT Next
+INVARIANT TypeInvariant
+INVARIANT CannotOpenWhenLocked
+\end{lstlisting}
+
+Кључна разлика у односу на прекидач је да свака акција садржи \textbf{услов изводљивости} (precondition) у првом конјункту.
+На пример, \texttt{Open} може да се изврши само ако је \texttt{door = "unlocked"} ако то не важи, акција је блокирана.
+TLC ће аутоматски проверити да у ниједном достижном стању \texttt{CannotOpenWhenLocked} не буде нарушена.
 \end{primer}
 
-\begin{primer}[Outbox pattern]
+\subsection{Узајамно искључење}
+\begin{primer}[Узајамно искључење]
+Узајамно искључење (\textit{mutual exclusion}) је класичан проблем у теорији конкурентних система.
+Два процеса се такмиче за приступ критичној секцији, делу кода који смем да се извршава само један процес истовремено.
+Сваки процес може бити у једном од три стања: \texttt{idle} (не покушава улазак), \texttt{trying} (чека на улазак) и \texttt{critical} (у критичној секцији).
 
+Овај пример је значајан јер уводи два кључна концепта:
+\begin{itemize}
+    \item моделовање \textbf{вишеструких процеса} --- стање система је функција која сваком процесу додељује његово тренутно стање,
+    \item \textbf{safety особина} --- гарантује да два процеса никад нису истовремено у критичној секцији.
+\end{itemize}
+
+\textbf{TLA+ модул (\texttt{MutualExclusion.tla}):}
+\begin{lstlisting}
+---- MODULE MutualExclusion ----
+EXTENDS Naturals
+
+CONSTANT N
+ASSUME N \in Nat /\ N > 0
+
+Procs == 1..N
+
+VARIABLE state
+
+States == {"idle", "trying", "critical"}
+
+Init == state = [p \in Procs |-> "idle"]
+
+TryEnter(p) ==
+    /\ state[p] = "idle"
+    /\ state' = [state EXCEPT ![p] = "trying"]
+
+Enter(p) ==
+    /\ state[p] = "trying"
+    /\ \A q \in Procs : q # p => state[q] # "critical"
+    /\ state' = [state EXCEPT ![p] = "critical"]
+
+Exit(p) ==
+    /\ state[p] = "critical"
+    /\ state' = [state EXCEPT ![p] = "idle"]
+
+Next == \E p \in Procs : TryEnter(p) \/ Enter(p) \/ Exit(p)
+
+Spec == Init /\ [][Next]_state
+
+TypeInvariant == \A p \in Procs : state[p] \in States
+
+MutualExclusion == \A p, q \in Procs : p # q => ~(state[p] = "critical" /\ state[q] = "critical")
+====
+\end{lstlisting}
+
+\textbf{TLC конфигурациони фајл (\texttt{MutualExclusion.cfg}):}
+\begin{lstlisting}
+CONSTANTS
+    N = 2
+
+INIT Init
+NEXT Next
+INVARIANT TypeInvariant
+INVARIANT MutualExclusion
+\end{lstlisting}
+
+Уочимо неколико важних ствари.
+Стање система је \textbf{функција} \texttt{state}, дефинисана над скупом процеса \texttt{Procs = 1..N}.
+Израз \texttt{state[p]} даје тренутно стање процеса \texttt{p}, а \texttt{[state EXCEPT ![p] = v]} прави нову функцију идентичну \texttt{state} осим за процес \texttt{p}.
+
+Акција \texttt{Enter(p)} садржи услов \texttt{\textbackslash A q \textbackslash in Procs : q \# p => state[q] \# "critical"} --- процес \texttt{p} може ући у критичну секцију само ако ниједан други процес тренутно није у њој.
+Ово је сама суштина узајамног искључења директно изражена у спецификацији.
+
+Особина \texttt{MutualExclusion} формално каже: за свака два различита процеса \texttt{p} и \texttt{q}, не може се десити да су оба у стању \texttt{critical} истовремено.
+TLC ће ову особину проверити у свим достижним стањима.
 \end{primer}
 
-
-% \begin{teorema}
-%     Овде стоји исказ теореме.
-% \end{teorema}
-
-% \begin{proof}
-%     Овде иде доказ теореме.
-% \end{proof}
-
-% \begin{lema}
-%     Овде стоји исказ леме.
-% \end{lema}
-
-% \begin{posledica}
-%     Овде стоји последица.
-% \end{posledica}
-
-% % -------------------------------------------------------
-% \section{Закључак}
-
-% Овде иде закључак.

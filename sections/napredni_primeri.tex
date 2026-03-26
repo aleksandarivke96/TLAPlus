@@ -1,0 +1,40 @@
+\section{Напредни примери}
+Ови примери претпостављају познавање основних концепата TLA+ и приказују реалистичније системе
+са вишеструким процесима, збиркама порука и нетривијалним особинама исправности.
+
+\subsection{Outbox pattern}
+\begin{primer}[Outbox pattern]
+Outbox pattern је техника којом се у истој трансакцији уписује промена у базу и порука у \texttt{outbox} табелу.
+Засебан процес затим чита \texttt{outbox} и шаље поруке ка брокеру, па се порука чисти тек након потврде.
+
+\textbf{TLA+ код (издвојени део спецификације):}
+\begin{lstlisting}
+VARIABLES db, outbox, broker, sent, acked, allMsgs, nextMsgId
+
+CreateOrder(o) ==
+    LET m == [id |-> nextMsgId, order |-> o] IN
+    /\ db[o] = "NEW"
+    /\ db' = [db EXCEPT ![o] = "CREATED"]
+    /\ outbox' = outbox \cup {m}
+    /\ allMsgs' = allMsgs \cup {m}
+    /\ nextMsgId' = nextMsgId + 1
+    /\ UNCHANGED <<broker, sent, acked>>
+
+RelaySend(m) ==
+    /\ m \in outbox
+    /\ broker' = broker \cup {m}
+    /\ sent' = sent \cup {m.id}
+    /\ UNCHANGED <<db, outbox, acked, allMsgs, nextMsgId>>
+
+AckFromBroker(m) ==
+    /\ m \in broker
+    /\ acked' = acked \cup {m.id}
+    /\ UNCHANGED <<db, outbox, broker, sent, allMsgs, nextMsgId>>
+
+CleanupOutbox(m) ==
+    /\ m \in outbox
+    /\ m.id \in acked
+    /\ outbox' = outbox \ {m}
+    /\ UNCHANGED <<db, broker, sent, acked, allMsgs, nextMsgId>>
+\end{lstlisting}
+\end{primer}

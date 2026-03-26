@@ -4,7 +4,7 @@
 
 \subsection{Логички оператори}
 \begin{center}
-\begin{tabular}{|c|l|}
+\begin{tabularx}{\textwidth}{|c|X|}
 \hline
 \textbf{Оператор} & \textbf{Опис} \\
 \hline
@@ -14,12 +14,12 @@
 \texttt{=>}             & Импликација: $A \Rightarrow B$ \\
 \texttt{<=>}            & Еквиваленција: $A \Leftrightarrow B$ \\
 \hline
-\end{tabular}
+\end{tabularx}
 \end{center}
 
 \subsection{Релацијски и аритметички оператори}
 \begin{center}
-\begin{tabular}{|c|l|}
+\begin{tabularx}{\textwidth}{|c|X|}
 \hline
 \textbf{Оператор} & \textbf{Опис} \\
 \hline
@@ -28,12 +28,12 @@
 \texttt{<}, \texttt{>}, \texttt{<=}, \texttt{>=} & Поређење бројева \\
 \texttt{+}, \texttt{-}, \texttt{*}, \texttt{\textbackslash div}, \texttt{\%} & Аритметичке операције (захтева \texttt{EXTENDS Naturals/Integers/Reals}) \\
 \hline
-\end{tabular}
+\end{tabularx}
 \end{center}
 
 \subsection{Оператори стања и прелаза}
 \begin{center}
-\begin{tabular}{|c|l|}
+\begin{tabularx}{\textwidth}{|c|X|}
 \hline
 \textbf{Оператор} & \textbf{Опис} \\
 \hline
@@ -44,12 +44,12 @@
 \texttt{<>P}             & Темпорална формула: $P$ ће \textbf{евентуално} постати тачно \\
 \texttt{[]P}             & Темпорална формула: $P$ је \textbf{увек} тачно \\
 \hline
-\end{tabular}
+\end{tabularx}
 \end{center}
 
 \subsection{Теоријско-скуповни оператори}
 \begin{center}
-\begin{tabular}{|c|l|}
+\begin{tabularx}{\textwidth}{|c|X|}
 \hline
 \textbf{Оператор} & \textbf{Опис} \\
 \hline
@@ -61,12 +61,12 @@
 \texttt{SUBSET S}             & Скуп свих подскупова скупа $S$ \\
 \texttt{UNION S}              & Унија свих елемената скупа скупова $S$ \\
 \hline
-\end{tabular}
+\end{tabularx}
 \end{center}
 
 \subsection{Оператори над функцијама и торкама}
 \begin{center}
-\begin{tabular}{|c|l|}
+\begin{tabularx}{\textwidth}{|c|X|}
 \hline
 \textbf{Оператор} & \textbf{Опис} \\
 \hline
@@ -76,12 +76,12 @@
 \texttt{DOMAIN f}                    & Домен функције $f$ \\
 \texttt{<<a, b, c>>}                 & Торка са елементима $a$, $b$, $c$ \\
 \hline
-\end{tabular}
+\end{tabularx}
 \end{center}
 
 \subsection{Квантификатори и \texttt{LET/IN}}
 \begin{center}
-\begin{tabular}{|c|l|}
+\begin{tabularx}{\textwidth}{|c|X|}
 \hline
 \textbf{Оператор} & \textbf{Опис} \\
 \hline
@@ -89,12 +89,12 @@
 \texttt{\textbackslash E x \textbackslash in S : P} & Егзистенцијална квантификација: постоји $x \in S$ за које важи $P$ \\
 \texttt{LET x == e IN ...}           & Локална дефиниција: уводи $x$ као скраћеницу за израз $e$ \\
 \hline
-\end{tabular}
+\end{tabularx}
 \end{center}
 
 \subsection{Кључне речи модула}
 \begin{center}
-\begin{tabular}{|c|l|}
+\begin{tabularx}{\textwidth}{|c|X|}
 \hline
 \textbf{Кључна реч} & \textbf{Опис} \\
 \hline
@@ -108,25 +108,25 @@
 \texttt{Next}       & Предикат прелаза (дефинише следеће стање) \\
 \texttt{Spec}       & Потпуна спецификација система \\
 \hline
-\end{tabular}
+\end{tabularx}
 \end{center}
 
 \subsection{Оператор опсега}
 Оператор \texttt{a..b} (из модула \texttt{Naturals} или \texttt{Integers}) прави скуп свих целих бројева од $a$ до $b$ укључујући крајеве.
 \begin{center}
-\begin{tabular}{|c|l|}
+\begin{tabularx}{\textwidth}{|c|X|}
 \hline
 \textbf{Израз} & \textbf{Опис} \\
 \hline
 \texttt{a..b} & Скуп $\{a, a+1, \ldots, b\}$, нпр.\ \texttt{1..10} даје $\{1,2,\ldots,10\}$ \\
 \hline
-\end{tabular}
+\end{tabularx}
 \end{center}
 
 \subsection{Записи}
 Записи (\textit{records}) су структуре са именованим пољима, слично структурама у C-у или речницима у Python-у.
 \begin{center}
-\begin{tabular}{|l|l|}
+\begin{tabularx}{\textwidth}{|l|X|}
 \hline
 \textbf{Синтакса} & \textbf{Опис} \\
 \hline
@@ -135,13 +135,13 @@
 \texttt{[f1 : S1, f2 : S2]}     & Скуп свих записа где \texttt{f1} $\in$ \texttt{S1} и \texttt{f2} $\in$ \texttt{S2} \\
 \texttt{[r EXCEPT !.field = v]} & Нови запис идентичан \texttt{r} осим поља \texttt{field} које добија вредност \texttt{v} \\
 \hline
-\end{tabular}
+\end{tabularx}
 \end{center}
 
 \subsection{Секвенце (\texttt{EXTENDS Sequences})}
 Секвенце су уређене листе вредности. Да би се користиле потребно је увести модул \texttt{Sequences}.
 \begin{center}
-\begin{tabular}{|l|l|}
+\begin{tabularx}{\textwidth}{|l|X|}
 \hline
 \textbf{Оператор} & \textbf{Опис} \\
 \hline
@@ -154,7 +154,7 @@
 \texttt{SubSeq(s, i, j)}  & Подсеквенца од индекса \texttt{i} до \texttt{j} \\
 \texttt{s[i]}             & Елемент секвенце на позицији \texttt{i} (индексирање од 1) \\
 \hline
-\end{tabular}
+\end{tabularx}
 \end{center}
 
 \subsection{Оператор \texttt{CHOOSE}}
@@ -162,21 +162,21 @@
 Важно је напоменути да \texttt{CHOOSE} није случајан избор --- увек враћа исти елемент за исти скуп и предикат.
 Ако ниједан елемент не задовољава предикат, резултат је недефинисан.
 \begin{center}
-\begin{tabular}{|l|l|}
+\begin{tabularx}{\textwidth}{|l|X|}
 \hline
 \textbf{Синтакса} & \textbf{Опис} \\
 \hline
 \texttt{CHOOSE x \textbackslash in S : P(x)} & Бира елемент $x$ из скупа $S$ такав да важи $P(x)$ \\
 \texttt{CHOOSE x : P(x)}                     & Бира елемент (произвољног типа) такав да важи $P(x)$ \\
 \hline
-\end{tabular}
+\end{tabularx}
 \end{center}
 
 \subsection{Израз \texttt{CASE}}
 \texttt{CASE} је вишегранна условна конструкција, алтернатива угнежђеним \texttt{IF/THEN/ELSE} изразима.
 Грана \texttt{OTHER} покрива све случајеве које претходне гране нису покриле.
 \begin{center}
-\begin{tabular}{|l|l|}
+\begin{tabularx}{\textwidth}{|l|X|}
 \hline
 \textbf{Синтакса} & \textbf{Опис} \\
 \hline
@@ -184,21 +184,21 @@
 \texttt{[] p2 -> e2}            & Ако је услов \texttt{p2} тачан, вредност је \texttt{e2} \\
 \texttt{[] OTHER -> e}          & Подразумевана грана ако ниједан услов није тачан \\
 \hline
-\end{tabular}
+\end{tabularx}
 \end{center}
 
 \subsection{Оператори правичности (Fairness)}
 Оператори правичности служе за описивање \textit{liveness} особина --- гарантују да систем неће заувек
 избегавати неку акцију ако је она изводљива.
 \begin{center}
-\begin{tabular}{|l|l|}
+\begin{tabularx}{\textwidth}{|l|X|}
 \hline
 \textbf{Оператор} & \textbf{Опис} \\
 \hline
 \texttt{WF\_vars(A)} & \textbf{Слаба правичност} (\textit{Weak Fairness}): ако акција $A$ постане трајно изводљива, мора се извршити \\
 \texttt{SF\_vars(A)} & \textbf{Јака правичност} (\textit{Strong Fairness}): ако акција $A$ постаје изводљива бесконачно пута, мора се извршити \\
 \hline
-\end{tabular}
+\end{tabularx}
 \end{center}
 Слаба правичност спречава да систем „заглави" у стању у ком акција никада није извршена иако је увек могућа.
 Јака правичност је строжа --- акција се мора извршити чак и ако се изводљивост повремено губи.
@@ -206,33 +206,33 @@
 \subsection{Оператор \texttt{ENABLED}}
 \texttt{ENABLED A} је предикат који је тачан ако и само ако постоји следеће стање у које се може прећи акцијом $A$ из тренутног стања.
 \begin{center}
-\begin{tabular}{|l|l|}
+\begin{tabularx}{\textwidth}{|l|X|}
 \hline
 \textbf{Синтакса} & \textbf{Опис} \\
 \hline
 \texttt{ENABLED A} & Тачно ако акција $A$ може да се изврши у тренутном стању \\
 \hline
-\end{tabular}
+\end{tabularx}
 \end{center}
 
 \subsection{Модул \texttt{FinSets} (коначни скупови)}
 Модул \texttt{FinSets} пружа операторе за рад са коначним скуповима. Увози се са \texttt{EXTENDS FinSets}.
 \begin{center}
-\begin{tabular}{|l|l|}
+\begin{tabularx}{\textwidth}{|l|X|}
 \hline
 \textbf{Оператор} & \textbf{Опис} \\
 \hline
 \texttt{IsFiniteSet(S)} & Тачно ако је скуп $S$ коначан \\
 \texttt{Cardinality(S)} & Број елемената коначног скупа $S$ \\
 \hline
-\end{tabular}
+\end{tabularx}
 \end{center}
 
 \subsection{Конфигурациони фајл (\texttt{.cfg})}
 Конфигурациони фајл говори TLC верификатору шта да провери и које вредности да додели константама.
 Сваки пројекат има засебан \texttt{.cfg} фајл са истим именом као и модул (нпр.\ \texttt{Counter.cfg}).
 \begin{center}
-\begin{tabular}{|l|l|l|}
+\begin{tabularx}{\textwidth}{|l|l|X|}
 \hline
 \textbf{Кључна реч} & \textbf{Синтакса} & \textbf{Опис} \\
 \hline
@@ -248,7 +248,7 @@
 \texttt{SYMMETRY}          & \texttt{SYMMETRY Perm}              & Задаје симетрију ради смањења простора стања \\
 \texttt{VIEW}              & \texttt{VIEW ViewExpr}              & Дефинише шта TLC сматра јединственим стањем \\
 \hline
-\end{tabular}
+\end{tabularx}
 \end{center}
 
 Пример конфигурационог фајла за Counter модул:
