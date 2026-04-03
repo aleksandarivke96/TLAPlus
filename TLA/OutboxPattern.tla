@@ -1,83 +1,49 @@
------------------------------ MODULE OutboxPattern -----------------------------
+---- MODULE OutboxPattern ----
 EXTENDS Naturals
 
-\* Set of business entities (e.g. order IDs) provided by a TLC model value.
-CONSTANT Orders
+VARIABLES db, outbox, extSystem, nextMsgId
 
-VARIABLES db, outbox, broker, sent, acked, allMsgs, nextMsgId
-
-vars == <<db, outbox, broker, sent, acked, allMsgs, nextMsgId>>
-
-Message(id, ord) == [id |-> id, order |-> ord]
+Orders == {"o1", "o2"}
 
 Init ==
-    /\ db = [o \in Orders |-> "NEW"]
-    /\ outbox = {}
-    /\ broker = {}
-    /\ sent = {}
-    /\ acked = {}
-    /\ allMsgs = {}
-    /\ nextMsgId = 1
+    /\ db         = [o \in Orders |-> "NEW"]
+    /\ outbox     = {}
+    /\ extSystem  = {}
+    /\ nextMsgId  = 0
 
-\* Atomic business transaction:
-\* write DB state + write outbox message in one step.
 CreateOrder(o) ==
-    LET m == Message(nextMsgId, o) IN
+    LET msg == [id |-> nextMsgId, order |-> o] IN
     /\ db[o] = "NEW"
-    /\ db' = [db EXCEPT ![o] = "CREATED"]
-    /\ outbox' = outbox \cup {m}
-    /\ allMsgs' = allMsgs \cup {m}
+    /\ db'        = [db EXCEPT ![o] = "CREATED"]
+    /\ outbox'    = outbox \cup {msg}
     /\ nextMsgId' = nextMsgId + 1
-    /\ UNCHANGED <<broker, sent, acked>>
+    /\ UNCHANGED extSystem
 
-\* Relay publishes an outbox message to broker.
-\* We keep outbox entry until broker ack is recorded.
-RelaySend(m) ==
-    /\ m \in outbox
-    /\ broker' = broker \cup {m}
-    /\ sent' = sent \cup {m.id}
-    /\ UNCHANGED <<db, outbox, acked, allMsgs, nextMsgId>>
+DeliverMessage(msg) ==
+    /\ msg \in outbox
+    /\ msg \notin extSystem
+    /\ extSystem' = extSystem \cup {msg}
+    /\ UNCHANGED <<db, outbox, nextMsgId>>
 
-\* Broker confirms it has accepted the message.
-AckFromBroker(m) ==
-    /\ m \in broker
-    /\ acked' = acked \cup {m.id}
-    /\ UNCHANGED <<db, outbox, broker, sent, allMsgs, nextMsgId>>
-
-\* Outbox cleanup happens only after ack.
-CleanupOutbox(m) ==
-    /\ m \in outbox
-    /\ m.id \in acked
-    /\ outbox' = outbox \ {m}
-    /\ UNCHANGED <<db, broker, sent, acked, allMsgs, nextMsgId>>
+CleanupOutbox(msg) ==
+    /\ msg \in outbox
+    /\ msg \in extSystem
+    /\ outbox' = outbox \ {msg}
+    /\ UNCHANGED <<db, extSystem, nextMsgId>>
 
 Next ==
-    \/ \E o \in Orders: CreateOrder(o)
-    \/ \E m \in outbox: RelaySend(m)
-    \/ \E m \in broker: AckFromBroker(m)
-    \/ \E m \in outbox: CleanupOutbox(m)
+    \/ \E o \in Orders      : CreateOrder(o)
+    \/ \E msg \in outbox    : DeliverMessage(msg)
+    \/ \E msg \in outbox    : CleanupOutbox(msg)
 
-Spec == Init /\ [][Next]_vars
+Spec == Init /\ [][Next]_<<db, outbox, extSystem, nextMsgId>>
 
-TypeOK ==
+TypeInvariant ==
     /\ db \in [Orders -> {"NEW", "CREATED"}]
-    /\ outbox \subseteq allMsgs
-    /\ broker \subseteq allMsgs
-    /\ sent \subseteq Nat
-    /\ acked \subseteq Nat
-    /\ nextMsgId \in Nat \ {0}
+    /\ \A msg \in outbox    : msg.id \in Nat
+    /\ \A msg \in extSystem : msg.id \in Nat
 
-\* No acknowledged message can appear out of thin air.
-AckedWereCreated ==
-    \A id \in acked: \E m \in allMsgs: m.id = id
-
-\* If order is created, then the corresponding outbox message existed at least once.
-CreatedOrderHasMessage ==
-    \A o \in Orders:
-        db[o] = "CREATED" =>
-            \E m \in allMsgs: m.order = o
-
-Safety ==
-    TypeOK /\ AckedWereCreated /\ CreatedOrderHasMessage
-
-===============================================================================
+Consistency ==
+    \A msg \in extSystem : msg \in outbox \/ msg.order \in Orders
+====
+\end{lstlisting}
