@@ -20,3 +20,4 @@
 
 # TLA+ states
 TLA/states/
+TLA/.tlacache/
